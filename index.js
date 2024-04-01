@@ -5,6 +5,8 @@ import dotenv from "dotenv";
 import cookieParser from "cookie-parser";
 import summaryroute from "./routes/summaryroute.js";
 import newcompaingroute from "./routes/newcompaingroute.js";
+import analyticsroute from "./routes/analyticsroute.js";
+import dailyactivity from "./routes/dailyactivityroute.js";
 
 const app = express();
 dotenv.config();
@@ -31,6 +33,8 @@ app.get("/", (req, res) => {
 // Start router from here
 app.use("/api/summary", summaryroute);
 app.use("/api/newcompaing", newcompaingroute);
+app.use("/api/analytics", analyticsroute);
+app.use("/api/dailyactivity", dailyactivity);
 // Error handling middleware
 // Error handling middleware
 app.use((err, req, res, next) => {

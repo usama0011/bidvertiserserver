@@ -13,19 +13,19 @@ const summerSchema = new Schema(
       required: true,
     },
     AdRequests: {
-      type: Number,
+      type: String,
       required: true,
     },
     Visits: {
-      type: Number,
+      type: String,
       required: true,
     },
     Cost: {
-      type: Number,
+      type: String,
       required: true,
     },
     CPC: {
-      type: Number,
+      type: String,
       required: true,
     },
   },
