@@ -14,29 +14,29 @@ const campaignSchema = new Schema(
       type: String,
     },
     campaignBid: {
-      type: Number,
+      type: String,
     },
     geo: {
       type: String,
     },
     bidRequests: {
-      type: Number,
+      type: String,
     },
     videoImp: {
-      type: Number,
+      type: String,
       required: false,
     },
     visits: {
-      type: Number,
+      type: String,
     },
     winRate: {
-      type: Number,
+      type: String,
     },
     cost: {
-      type: Number,
+      type: String,
     },
     dailyCap: {
-      type: Number,
+      type: String,
     },
   },
   { timestamps: true }
