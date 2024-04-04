@@ -10,6 +10,9 @@ const campaignSchema = new Schema(
     id: {
       type: Number,
     },
+    adFor: {
+      type: String,
+    },
     campaignName: {
       type: String,
     },

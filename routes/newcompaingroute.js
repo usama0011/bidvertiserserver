@@ -32,6 +32,7 @@ router.post("/", async (req, res) => {
   const {
     adFormat,
     id,
+    adFor,
     campaignName,
     campaignBid,
     geo,
@@ -46,6 +47,7 @@ router.post("/", async (req, res) => {
   const campaign = new Campaign({
     adFormat,
     id,
+    adFor,
     campaignName,
     campaignBid,
     geo,
