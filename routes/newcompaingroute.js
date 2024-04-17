@@ -43,6 +43,10 @@ router.post("/", async (req, res) => {
     winRate,
     cost,
     dailyCap,
+    title,
+    descriptionone,
+    descriptiontwo,
+    displayURL,
   } = req.body;
 
   const campaign = new Campaign({
@@ -59,6 +63,10 @@ router.post("/", async (req, res) => {
     cost,
     compaignImage,
     dailyCap,
+    title,
+    descriptionone,
+    descriptiontwo,
+    displayURL,
   });
 
   try {

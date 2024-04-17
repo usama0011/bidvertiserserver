@@ -44,6 +44,18 @@ const campaignSchema = new Schema(
     dailyCap: {
       type: String,
     },
+    title: {
+      type: String,
+    },
+    descriptionone: {
+      type: String,
+    },
+    descriptiontwo: {
+      type: String,
+    },
+    displayURL: {
+      type: String,
+    }
   },
   { timestamps: true }
 );
