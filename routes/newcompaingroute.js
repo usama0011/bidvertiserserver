@@ -36,7 +36,7 @@ router.post("/", async (req, res) => {
     campaignName,
     campaignBid,
     geo,
-    campaignImage,
+    compaignImage,
     bidRequests,
     videoImp,
     visits,
@@ -57,7 +57,7 @@ router.post("/", async (req, res) => {
     visits,
     winRate,
     cost,
-    campaignImage,
+    compaignImage,
     dailyCap,
   });
 

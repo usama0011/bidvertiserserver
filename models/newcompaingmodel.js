@@ -16,7 +16,7 @@ const campaignSchema = new Schema(
     campaignName: {
       type: String,
     },
-    campaignImage: {
+    compaignImage: {
       type: String,
     },
     campaignBid: {
