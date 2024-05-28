@@ -59,6 +59,7 @@ const campaignSchema = new Schema(
     entryDate: {
       type: String,
     }
+    // I update here that is totally Right
   },
   { timestamps: true }
 );
