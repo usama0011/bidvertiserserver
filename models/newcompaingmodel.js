@@ -55,6 +55,9 @@ const campaignSchema = new Schema(
     },
     displayURL: {
       type: String,
+    },
+    entryDate: {
+      type: String,
     }
   },
   { timestamps: true }

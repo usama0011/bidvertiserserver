@@ -3,10 +3,28 @@ import Campaign from "../models/newcompaingmodel.js";
 
 const router = express.Router();
 
-// GET all campaigns
 router.get("/", async (req, res) => {
+  const { startDate, endDate } = req.query;
+  console.log("Received startDate:", startDate, "endDate:", endDate);
+
   try {
-    const campaigns = await Campaign.find();
+    let campaigns;
+    if (startDate && endDate) {
+      // Convert dates to 'YYYY-MM-DD' format
+      const parsedStartDate = new Date(startDate).toISOString().split('T')[0];
+      const parsedEndDate = new Date(endDate).toISOString().split('T')[0];
+
+      console.log("Parsed startDate:", parsedStartDate, "Parsed endDate:", parsedEndDate);
+
+      campaigns = await Campaign.find({
+        entryDate: {
+          $gte: parsedStartDate,
+          $lte: parsedEndDate
+        }
+      }).exec();
+    } else {
+      campaigns = await Campaign.find();
+    }
     res.status(200).json(campaigns);
   } catch (err) {
     res.status(500).json({ message: err.message });
