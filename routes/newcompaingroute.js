@@ -11,16 +11,21 @@ router.get("/", async (req, res) => {
     let campaigns;
     if (startDate && endDate) {
       // Convert dates to 'YYYY-MM-DD' format
-      const parsedStartDate = new Date(startDate).toISOString().split('T')[0];
-      const parsedEndDate = new Date(endDate).toISOString().split('T')[0];
+      const parsedStartDate = new Date(startDate).toISOString().split("T")[0];
+      const parsedEndDate = new Date(endDate).toISOString().split("T")[0];
 
-      console.log("Parsed startDate:", parsedStartDate, "Parsed endDate:", parsedEndDate);
+      console.log(
+        "Parsed startDate:",
+        parsedStartDate,
+        "Parsed endDate:",
+        parsedEndDate
+      );
 
       campaigns = await Campaign.find({
         entryDate: {
           $gte: parsedStartDate,
-          $lte: parsedEndDate
-        }
+          $lte: parsedEndDate,
+        },
       }).exec();
     } else {
       campaigns = await Campaign.find();
@@ -60,6 +65,7 @@ router.post("/", async (req, res) => {
     visits,
     winRate,
     cost,
+    destinationURL,
     dailyCap,
     title,
     descriptionone,
@@ -81,6 +87,7 @@ router.post("/", async (req, res) => {
     cost,
     compaignImage,
     dailyCap,
+    destinationURL,
     title,
     descriptionone,
     descriptiontwo,

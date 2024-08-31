@@ -53,12 +53,15 @@ const campaignSchema = new Schema(
     descriptiontwo: {
       type: String,
     },
+    destinationURL: {
+      type: String,
+    },
     displayURL: {
       type: String,
     },
     entryDate: {
       type: String,
-    }
+    },
     // I update here that is totally Right
   },
   { timestamps: true }
