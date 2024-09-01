@@ -11,13 +11,17 @@ router.get("/", async (req, res) => {
   try {
     let campaigns;
     if (startDate && endDate) {
-      // Convert dates to 'YYYY-MM-DD' format
-      const parsedStartDate = new Date(startDate).toISOString().split("T")[0];
-      const parsedEndDate = new Date(endDate).toISOString().split("T")[0];
+      // Convert startDate and endDate from 'mm/dd/yyyy' to 'yyyy-mm-dd'
+      const parsedStartDate = new Date(startDate);
+      const parsedEndDate = new Date(endDate);
+
+      // Adjust the endDate to include the entire day
+      parsedEndDate.setHours(23, 59, 59, 999);
+
       campaigns = await Analytics.find({
-        createdAt: {
-          $gte: new Date(parsedStartDate),
-          $lte: new Date(parsedEndDate),
+        Date: {
+          $gte: parsedStartDate,
+          $lte: parsedEndDate,
         },
       }).exec();
     } else {

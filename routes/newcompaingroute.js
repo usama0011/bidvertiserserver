@@ -3,7 +3,7 @@ import Campaign from "../models/newcompaingmodel.js";
 
 const router = express.Router();
 
-// Backend route
+// GET all campaigns or filter by date range
 router.get("/", async (req, res) => {
   const { startDate, endDate } = req.query;
   console.log(req.query);
@@ -11,18 +11,14 @@ router.get("/", async (req, res) => {
 
   try {
     let campaigns;
+
+    // Check if both startDate and endDate are provided
     if (startDate && endDate) {
       // Convert dates to 'YYYY-MM-DD' format
       const parsedStartDate = new Date(startDate).toISOString().split("T")[0];
       const parsedEndDate = new Date(endDate).toISOString().split("T")[0];
 
-      console.log(
-        "Parsed startDate:",
-        parsedStartDate,
-        "Parsed endDate:",
-        parsedEndDate
-      );
-
+      // Filter campaigns based on the createdAt field
       campaigns = await Campaign.find({
         createdAt: {
           $gte: new Date(parsedStartDate),
@@ -30,8 +26,10 @@ router.get("/", async (req, res) => {
         },
       }).exec();
     } else {
-      campaigns = await Campaign.find();
+      // If no date range is provided, return all campaigns
+      campaigns = await Campaign.find().exec();
     }
+
     res.status(200).json(campaigns);
   } catch (err) {
     res.status(500).json({ message: err.message });
