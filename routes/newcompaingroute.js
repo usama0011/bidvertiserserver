@@ -3,8 +3,10 @@ import Campaign from "../models/newcompaingmodel.js";
 
 const router = express.Router();
 
+// Backend route
 router.get("/", async (req, res) => {
   const { startDate, endDate } = req.query;
+  console.log(req.query);
   console.log("Received startDate:", startDate, "endDate:", endDate);
 
   try {
@@ -22,9 +24,9 @@ router.get("/", async (req, res) => {
       );
 
       campaigns = await Campaign.find({
-        entryDate: {
-          $gte: parsedStartDate,
-          $lte: parsedEndDate,
+        createdAt: {
+          $gte: new Date(parsedStartDate),
+          $lte: new Date(parsedEndDate),
         },
       }).exec();
     } else {
