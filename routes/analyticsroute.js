@@ -4,15 +4,32 @@ import Analytics from "../models/analyticsmodel.js";
 const router = express.Router();
 
 // GET all analytics
+// Backend route
 router.get("/", async (req, res) => {
+  const { startDate, endDate } = req.query;
+  console.log(req.query);
+  console.log("Received startDate:", startDate, "endDate:", endDate);
+
   try {
-    const analytics = await Analytics.find();
-    res.status(200).json(analytics);
+    let campaigns;
+    if (startDate && endDate) {
+      // Convert dates to 'YYYY-MM-DD' format
+      const parsedStartDate = new Date(startDate).toISOString().split("T")[0];
+      const parsedEndDate = new Date(endDate).toISOString().split("T")[0];
+      campaigns = await Analytics.find({
+        createdAt: {
+          $gte: new Date(parsedStartDate),
+          $lte: new Date(parsedEndDate),
+        },
+      }).exec();
+    } else {
+      campaigns = await Analytics.find();
+    }
+    res.status(200).json(campaigns);
   } catch (err) {
     res.status(500).json({ message: err.message });
   }
 });
-
 // GET a single analytics by ID
 router.get("/:id", async (req, res) => {
   try {
