@@ -11,10 +11,16 @@ router.get("/", async (req, res) => {
 
   try {
     let campaigns;
+
     if (startDate && endDate) {
       // Convert startDate and endDate from 'mm/dd/yyyy' to 'yyyy-mm-dd'
-      const parsedStartDate = new Date(startDate);
-      const parsedEndDate = new Date(endDate);
+      const [startMonth, startDay, startYear] = startDate.split("/");
+      const [endMonth, endDay, endYear] = endDate.split("/");
+
+      const parsedStartDate = new Date(
+        `${startYear}-${startMonth}-${startDay}`
+      );
+      const parsedEndDate = new Date(`${endYear}-${endMonth}-${endDay}`);
 
       // Adjust the endDate to include the entire day
       parsedEndDate.setHours(23, 59, 59, 999);
@@ -26,14 +32,14 @@ router.get("/", async (req, res) => {
         },
       }).exec();
     } else {
-      campaigns = await Analytics.find();
+      campaigns = await Summary.find();
     }
+
     res.status(200).json(campaigns);
   } catch (err) {
     res.status(500).json({ message: err.message });
   }
 });
-
 // GET /fetchcampaignnames
 router.get("/fetchcampaignnames/summery", async (req, res) => {
   try {
