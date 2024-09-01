@@ -49,34 +49,13 @@ router.get("/", async (req, res) => {
 });
 
 // GET /fetchcampaignnames
-// GET /fetchcampaignnames/dailyactivity
-router.get("/fetchcampaignnames/dailyactivity", async (req, res) => {
+router.get("/fetchcampaignnames/dailiyactivity", async (req, res) => {
   try {
-    // Use aggregation to group by campaign name and count occurrences
-    const campaignNames = await DailyActivity.aggregate([
-      {
-        $group: {
-          _id: "$campaignname",
-          count: { $sum: 1 },
-        },
-      },
-      {
-        $match: {
-          count: 1, // Only include campaign names that appear exactly once
-        },
-      },
-      {
-        $project: {
-          _id: 0,
-          campaignname: "$_id",
-        },
-      },
-    ]);
+    // Fetch distinct campaign names from the DailyActivity collection
+    const campaignNames = await DailyActivity.distinct("campaignname");
 
-    // Map the results to return an array of campaign names
-    const uniqueCampaignNames = campaignNames.map(
-      (campaign) => campaign.campaignname
-    );
+    // Optionally, remove duplicates using Set to ensure uniqueness
+    const uniqueCampaignNames = [...new Set(campaignNames)];
 
     res.status(200).json(uniqueCampaignNames);
   } catch (err) {

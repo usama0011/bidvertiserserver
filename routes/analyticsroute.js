@@ -54,10 +54,13 @@ router.get("/", async (req, res) => {
 // GET /fetchcampaignnames
 router.get("/fetchcampaignnames/analytics", async (req, res) => {
   try {
-    // Fetch distinct campaign names from the Summary collection
+    // Fetch distinct campaign names from the DailyActivity collection
     const campaignNames = await Analytics.distinct("campaignname");
 
-    res.status(200).json(campaignNames);
+    // Optionally, remove duplicates using Set to ensure uniqueness
+    const uniqueCampaignNames = [...new Set(campaignNames)];
+
+    res.status(200).json(uniqueCampaignNames);
   } catch (err) {
     console.error("Error fetching campaign names:", err);
     res.status(500).json({ message: "Internal server error" });
