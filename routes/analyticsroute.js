@@ -5,7 +5,7 @@ const router = express.Router();
 
 // GET all analytics
 router.get("/", async (req, res) => {
-  const { startDate, endDate } = req.query;
+  const { startDate, endDate, selectedCampaign } = req.query;
   console.log(req.query);
   console.log("Received startDate:", startDate, "endDate:", endDate);
 
@@ -27,16 +27,18 @@ router.get("/", async (req, res) => {
       parsedEndDate.setHours(23, 59, 59, 999);
 
       // Log the parsed dates for debugging
-      console.log("Parsed startDate:", parsedStartDate);
-      console.log("Parsed endDate:", parsedEndDate);
-
-      // Find documents with Date within the range
-      campaigns = await Analytics.find({
+      const query = {
         Date: {
           $gte: parsedStartDate.toISOString().split("T")[0], // Format as 'YYYY-MM-DD'
           $lte: parsedEndDate.toISOString().split("T")[0], // Format as 'YYYY-MM-DD'
         },
-      }).exec();
+      };
+      if (selectedCampaign) {
+        query.campaignname = selectedCampaign;
+      }
+
+      // Find documents with Date within the range
+      campaigns = await Analytics.find(query).exec();
     } else {
       // Fetch all campaigns if no date range is provided
       campaigns = await Analytics.find();
