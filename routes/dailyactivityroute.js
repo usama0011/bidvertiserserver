@@ -12,38 +12,49 @@ router.get("/", async (req, res) => {
     let campaigns;
 
     if (startDate && endDate) {
-      // Convert startDate and endDate from 'mm/dd/yyyy' to 'yyyy-mm-dd'
+      // Convert startDate and endDate from 'MM/DD/YYYY' to 'YYYY-MM-DD'
       const [startMonth, startDay, startYear] = startDate.split("/");
       const [endMonth, endDay, endYear] = endDate.split("/");
 
+      // Create Date objects in the format 'YYYY-MM-DD'
       const parsedStartDate = new Date(
         `${startYear}-${startMonth}-${startDay}`
       );
       const parsedEndDate = new Date(`${endYear}-${endMonth}-${endDay}`);
 
-      // Adjust the endDate to include the entire day
+      // Adjust endDate to include the entire day
       parsedEndDate.setHours(23, 59, 59, 999);
 
+      // Log the parsed dates for debugging
+      console.log("Parsed startDate:", parsedStartDate);
+      console.log("Parsed endDate:", parsedEndDate);
+
+      // Find documents with Date within the range
       campaigns = await DailyActivity.find({
         Date: {
-          $gte: parsedStartDate,
-          $lte: parsedEndDate,
+          $gte: parsedStartDate.toISOString().split("T")[0], // Format as 'YYYY-MM-DD'
+          $lte: parsedEndDate.toISOString().split("T")[0], // Format as 'YYYY-MM-DD'
         },
       }).exec();
+
+      console.log("Campaigns found:", campaigns);
     } else {
+      // Fetch all campaigns if no date range is provided
       campaigns = await DailyActivity.find();
     }
 
     res.status(200).json(campaigns);
   } catch (err) {
+    console.error("Error fetching campaigns:", err.message);
     res.status(500).json({ message: err.message });
   }
 });
+
 // GET /fetchcampaignnames
 router.get("/fetchcampaignnames/dailiyactivity", async (req, res) => {
   try {
     // Fetch distinct campaign names from the Summary collection
-    const campaignNames = await Analytics.distinct("campaignname");
+    const campaignNames = await DailyActivity.distinct("campaignname");
 
     res.status(200).json(campaignNames);
   } catch (err) {
@@ -55,7 +66,7 @@ router.get("/fetchcampaignnames/dailiyactivity", async (req, res) => {
 router.get("/:id", async (req, res) => {
   try {
     const id = req.params.id;
-    const analytics = await Analytics.findById(id);
+    const analytics = await DailyActivity.findById(id);
     res.status(200).json(analytics);
   } catch (error) {
     res.status(404).json({ message: "Analytics not found" });
@@ -64,7 +75,7 @@ router.get("/:id", async (req, res) => {
 
 // POST a new analytics
 router.post("/", async (req, res) => {
-  const analytics = new Analytics(req.body);
+  const analytics = new DailyActivity(req.body);
 
   try {
     const newAnalytics = await analytics.save();
@@ -78,9 +89,13 @@ router.post("/", async (req, res) => {
 router.put("/:id", async (req, res) => {
   try {
     const id = req.params.id;
-    const updatedAnalytics = await Analytics.findByIdAndUpdate(id, req.body, {
-      new: true,
-    });
+    const updatedAnalytics = await DailyActivity.findByIdAndUpdate(
+      id,
+      req.body,
+      {
+        new: true,
+      }
+    );
     if (!updatedAnalytics) {
       return res.status(404).json({ message: "Analytics not found" });
     }
@@ -93,7 +108,9 @@ router.put("/:id", async (req, res) => {
 // DELETE analytics by ID
 router.delete("/:id", async (req, res) => {
   try {
-    const removedAnalytics = await Analytics.findByIdAndDelete(req.params.id);
+    const removedAnalytics = await DailyActivity.findByIdAndDelete(
+      req.params.id
+    );
     if (!removedAnalytics) {
       return res.status(404).json({ message: "Analytics not found" });
     }

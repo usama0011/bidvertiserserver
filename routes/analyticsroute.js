@@ -4,7 +4,6 @@ import Analytics from "../models/analyticsmodel.js";
 const router = express.Router();
 
 // GET all analytics
-// Backend route
 router.get("/", async (req, res) => {
   const { startDate, endDate } = req.query;
   console.log(req.query);
@@ -14,30 +13,38 @@ router.get("/", async (req, res) => {
     let campaigns;
 
     if (startDate && endDate) {
-      // Convert startDate and endDate from 'mm/dd/yyyy' to 'yyyy-mm-dd'
+      // Convert startDate and endDate from 'MM/DD/YYYY' to 'YYYY-MM-DD'
       const [startMonth, startDay, startYear] = startDate.split("/");
       const [endMonth, endDay, endYear] = endDate.split("/");
 
+      // Create Date objects in the format 'YYYY-MM-DD'
       const parsedStartDate = new Date(
         `${startYear}-${startMonth}-${startDay}`
       );
       const parsedEndDate = new Date(`${endYear}-${endMonth}-${endDay}`);
 
-      // Adjust the endDate to include the entire day
+      // Adjust endDate to include the entire day
       parsedEndDate.setHours(23, 59, 59, 999);
 
+      // Log the parsed dates for debugging
+      console.log("Parsed startDate:", parsedStartDate);
+      console.log("Parsed endDate:", parsedEndDate);
+
+      // Find documents with Date within the range
       campaigns = await Analytics.find({
         Date: {
-          $gte: parsedStartDate,
-          $lte: parsedEndDate,
+          $gte: parsedStartDate.toISOString().split("T")[0], // Format as 'YYYY-MM-DD'
+          $lte: parsedEndDate.toISOString().split("T")[0], // Format as 'YYYY-MM-DD'
         },
       }).exec();
     } else {
+      // Fetch all campaigns if no date range is provided
       campaigns = await Analytics.find();
     }
 
     res.status(200).json(campaigns);
   } catch (err) {
+    console.error("Error fetching campaigns:", err.message);
     res.status(500).json({ message: err.message });
   }
 });
