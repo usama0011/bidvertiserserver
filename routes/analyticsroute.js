@@ -30,6 +30,18 @@ router.get("/", async (req, res) => {
     res.status(500).json({ message: err.message });
   }
 });
+// GET /fetchcampaignnames
+router.get("/fetchcampaignnames/analytics", async (req, res) => {
+  try {
+    // Fetch distinct campaign names from the Summary collection
+    const campaignNames = await Analytics.distinct("campaignname");
+
+    res.status(200).json(campaignNames);
+  } catch (err) {
+    console.error("Error fetching campaign names:", err);
+    res.status(500).json({ message: "Internal server error" });
+  }
+});
 // GET a single analytics by ID
 router.get("/:id", async (req, res) => {
   try {
