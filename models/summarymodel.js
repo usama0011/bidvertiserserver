@@ -28,6 +28,7 @@ const summerSchema = new Schema(
       type: String,
       required: true,
     },
+    campaignname: { type: String },
   },
   { timestamps: true }
 );

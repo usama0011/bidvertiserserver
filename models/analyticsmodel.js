@@ -6,6 +6,7 @@ const analyticsSchema = new Schema(
   {
     Date: { type: String },
     BidRequest: { type: String },
+    campaignname: { type: String },
     Vistis: { type: String },
     WinRate: { type: String },
     Cost: { type: String },

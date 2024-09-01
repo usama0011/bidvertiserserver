@@ -28,6 +28,7 @@ router.post("/", async (req, res) => {
     startdate: req.body.startdate,
     endDate: req.body.endDate,
     AdRequests: req.body.AdRequests,
+    campaignname: req.body.campaignname,
     Visits: req.body.Visits,
     Cost: req.body.Cost,
     CPC: req.body.CPC,
@@ -66,6 +67,5 @@ router.delete("/:id", async (req, res) => {
     res.status(500).json({ message: err.message });
   }
 });
-
 
 export default router;
