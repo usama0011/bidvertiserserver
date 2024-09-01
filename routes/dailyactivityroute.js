@@ -49,17 +49,42 @@ router.get("/", async (req, res) => {
 });
 
 // GET /fetchcampaignnames
-router.get("/fetchcampaignnames/dailiyactivity", async (req, res) => {
+// GET /fetchcampaignnames/dailyactivity
+router.get("/fetchcampaignnames/dailyactivity", async (req, res) => {
   try {
-    // Fetch distinct campaign names from the Summary collection
-    const campaignNames = await DailyActivity.distinct("campaignname");
+    // Use aggregation to group by campaign name and count occurrences
+    const campaignNames = await DailyActivity.aggregate([
+      {
+        $group: {
+          _id: "$campaignname",
+          count: { $sum: 1 },
+        },
+      },
+      {
+        $match: {
+          count: 1, // Only include campaign names that appear exactly once
+        },
+      },
+      {
+        $project: {
+          _id: 0,
+          campaignname: "$_id",
+        },
+      },
+    ]);
 
-    res.status(200).json(campaignNames);
+    // Map the results to return an array of campaign names
+    const uniqueCampaignNames = campaignNames.map(
+      (campaign) => campaign.campaignname
+    );
+
+    res.status(200).json(uniqueCampaignNames);
   } catch (err) {
     console.error("Error fetching campaign names:", err);
     res.status(500).json({ message: "Internal server error" });
   }
 });
+
 // GET a single analytics by ID
 router.get("/:id", async (req, res) => {
   try {
