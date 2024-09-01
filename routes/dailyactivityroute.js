@@ -14,7 +14,7 @@ router.get("/", async (req, res) => {
 });
 
 // GET /fetchcampaignnames
-router.get("/fetchcampaignnames/analytics", async (req, res) => {
+router.get("/fetchcampaignnames/dailiyactivity", async (req, res) => {
   try {
     // Fetch distinct campaign names from the Summary collection
     const campaignNames = await Analytics.distinct("campaignname");
