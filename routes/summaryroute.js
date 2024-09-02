@@ -30,10 +30,12 @@ router.get("/", async (req, res) => {
       console.log("Parsed startDate:", parsedStartDate);
       console.log("Parsed endDate:", parsedEndDate);
 
-      // Find documents with Date within the range
+      // Find documents with startdate and endDate within the range
       campaigns = await Summary.find({
-        Date: {
+        startdate: {
           $gte: parsedStartDate.toISOString().split("T")[0], // Format as 'YYYY-MM-DD'
+        },
+        endDate: {
           $lte: parsedEndDate.toISOString().split("T")[0], // Format as 'YYYY-MM-DD'
         },
       }).exec();
@@ -48,6 +50,7 @@ router.get("/", async (req, res) => {
     res.status(500).json({ message: err.message });
   }
 });
+
 // GET /fetchcampaignnames
 router.get("/fetchcampaignnames/summery", async (req, res) => {
   try {
