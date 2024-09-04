@@ -7,7 +7,9 @@ import summaryroute from "./routes/summaryroute.js";
 import newcompaingroute from "./routes/newcompaingroute.js";
 import analyticsroute from "./routes/analyticsroute.js";
 import dailyactivity from "./routes/dailyactivityroute.js";
-
+import summerycsvupload from "./csvroutes/summerycsv.js";
+import analyticsupload from "./csvroutes/analyticscsv.js";
+import dailyactivityupload from "./csvroutes/dailyactivitycsv.js";
 const app = express();
 dotenv.config();
 
@@ -35,6 +37,9 @@ app.use("/api/summary", summaryroute);
 app.use("/api/newcompaing", newcompaingroute);
 app.use("/api/analytics", analyticsroute);
 app.use("/api/dailyactivity", dailyactivity);
+app.use("/api/summeryupload", summerycsvupload);
+app.use("/api/analyticsupload", analyticsupload);
+app.use("/api/dailyactivityupload", dailyactivityupload);
 // Error handling middleware
 // Error handling middleware
 app.use((err, req, res, next) => {
