@@ -4,7 +4,7 @@ import Transaction from "../models/transactionmodel.js";
 const router = express.Router();
 
 // ✅ Fetch all transactions (sorted by latest date)
-router.get("/", async (req, res) => {
+router.get("/getalldata", async (req, res) => {
   try {
     const transactions = await Transaction.find().sort({ date: -1 });
     res.status(200).json(transactions);
