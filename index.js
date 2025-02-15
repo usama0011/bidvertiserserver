@@ -7,9 +7,14 @@ import summaryroute from "./routes/summaryroute.js";
 import newcompaingroute from "./routes/newcompaingroute.js";
 import analyticsroute from "./routes/analyticsroute.js";
 import dailyactivity from "./routes/dailyactivityroute.js";
+import invoiceRoutes from "./routes/MonthlyInvoicesroute.js";
 import summerycsvupload from "./csvroutes/summerycsv.js";
 import analyticsupload from "./csvroutes/analyticscsv.js";
 import dailyactivityupload from "./csvroutes/dailyactivitycsv.js";
+import monthlyinvoiceupload from "./csvroutes/monthlyinvoicecsv.js";
+import transactionRoutes from "./routes/transactionroute.js";
+import transactionUploadRoutes from "./csvroutes/transactioncsv.js";
+
 const app = express();
 dotenv.config();
 
@@ -37,9 +42,13 @@ app.use("/api/summary", summaryroute);
 app.use("/api/newcompaing", newcompaingroute);
 app.use("/api/analytics", analyticsroute);
 app.use("/api/dailyactivity", dailyactivity);
+app.use("/api/invoices", invoiceRoutes);
 app.use("/api/summeryupload", summerycsvupload);
 app.use("/api/analyticsupload", analyticsupload);
 app.use("/api/dailyactivityupload", dailyactivityupload);
+app.use("/api/monthlyinvoiceupload", monthlyinvoiceupload);
+app.use("/api/transactionRoutes", transactionRoutes);
+app.use("/api/transactionupload", transactionUploadRoutes);
 // Error handling middleware
 // Error handling middleware
 app.use((err, req, res, next) => {
