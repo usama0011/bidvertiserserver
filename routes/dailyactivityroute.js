@@ -70,16 +70,13 @@ router.get("/aggrigation-summary", async (req, res) => {
     let { startDate, endDate } = req.query;
     console.log("Received Dates:", startDate, endDate);
 
-    // Convert MM/DD/YYYY to DD-MM-YYYY
-    const convertDateFormat = (dateStr) => {
-      const [month, day, year] = dateStr.split("/");
-      return `${day}-${month}-${year}`; // Convert to DD-MM-YYYY
-    };
+    // **Keep Date Format as MM/DD/YYYY to Match MongoDB**
+    const convertDateFormat = (dateStr) => dateStr;
 
     startDate = convertDateFormat(startDate);
     endDate = convertDateFormat(endDate);
 
-    console.log("Converted Dates:", startDate, endDate);
+    console.log("Converted Dates (Kept Same):", startDate, endDate);
     if (!startDate || !endDate) {
       return res
         .status(400)
@@ -90,14 +87,14 @@ router.get("/aggrigation-summary", async (req, res) => {
     const result = await DailyActivity.aggregate([
       {
         $match: {
-          Date: { $gte: startDate, $lte: endDate },
+          Date: { $gte: startDate, $lte: endDate }, // **Ensure dates match MongoDB format**
         },
       },
       {
         $group: {
           _id: "$campaignname",
-          totalBidRequest: { $sum: { $toInt: "$BidRequest" } },
-          totalVisits: { $sum: { $toInt: "$Vistis" } },
+          totalBidRequest: { $sum: { $toDouble: "$BidRequest" } }, // **Ensure numeric conversion**
+          totalVisits: { $sum: { $toDouble: "$Vistis" } }, // **Fix typo**
           totalCost: { $sum: { $toDouble: "$Cost" } },
           totalCPC: { $sum: { $toDouble: "$CPC" } },
           entryCount: { $sum: 1 }, // Count number of entries per campaign
@@ -110,7 +107,7 @@ router.get("/aggrigation-summary", async (req, res) => {
           AdRequests: "$totalBidRequest",
           Visits: "$totalVisits",
           Cost: "$totalCost",
-          CPC: { $divide: ["$totalCPC", "$entryCount"] }, // Calculate the average CPC
+          CPC: { $divide: ["$totalCPC", "$entryCount"] }, // Calculate average CPC
         },
       },
     ]);
