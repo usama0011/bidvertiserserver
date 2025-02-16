@@ -64,6 +64,69 @@ router.get("/fetchcampaignnames/dailiyactivity", async (req, res) => {
   }
 });
 
+// API to fetch aggregated data
+router.get("/aggrigation-summary", async (req, res) => {
+  try {
+    let { startDate, endDate } = req.query;
+    console.log("Received Dates:", startDate, endDate);
+
+    // Convert MM/DD/YYYY to DD-MM-YYYY
+    const convertDateFormat = (dateStr) => {
+      const [month, day, year] = dateStr.split("/");
+      return `${day}-${month}-${year}`; // Convert to DD-MM-YYYY
+    };
+
+    startDate = convertDateFormat(startDate);
+    endDate = convertDateFormat(endDate);
+
+    console.log("Converted Dates:", startDate, endDate);
+    if (!startDate || !endDate) {
+      return res
+        .status(400)
+        .json({ message: "Start date and end date are required." });
+    }
+
+    // MongoDB Aggregation Pipeline
+    const result = await DailyActivity.aggregate([
+      {
+        $match: {
+          Date: { $gte: startDate, $lte: endDate },
+        },
+      },
+      {
+        $group: {
+          _id: "$campaignname",
+          totalBidRequest: { $sum: { $toInt: "$BidRequest" } },
+          totalVisits: { $sum: { $toInt: "$Vistis" } },
+          totalCost: { $sum: { $toDouble: "$Cost" } },
+          totalCPC: { $sum: { $toDouble: "$CPC" } },
+          entryCount: { $sum: 1 }, // Count number of entries per campaign
+        },
+      },
+      {
+        $project: {
+          _id: 0,
+          campaignname: "$_id",
+          AdRequests: "$totalBidRequest",
+          Visits: "$totalVisits",
+          Cost: "$totalCost",
+          CPC: { $divide: ["$totalCPC", "$entryCount"] }, // Calculate the average CPC
+        },
+      },
+    ]);
+
+    res.json({
+      totalCampaigns: result.length,
+      startDate,
+      endDate,
+      campaigns: result,
+    });
+  } catch (error) {
+    console.error("Error fetching data:", error);
+    res.status(500).json({ message: "Internal Server Error" });
+  }
+});
+
 // GET a single analytics by ID
 router.get("/:id", async (req, res) => {
   try {
