@@ -4,7 +4,7 @@ const router = express.Router();
 
 router.post("/", async (req, res) => {
   const { token } = req.body;
-  const secretKey = "6LetftkqAAAAAOQc7xWzicIFK-y5ScSaYF8KLPrO"; // Replace with your v3 secret key
+  const secretKey = "6LergdkqAAAAAC9Z6lMILId7_JUN9iha1USLshXt"; // Replace with your v3 secret key
 
   try {
     const response = await axios.post(
