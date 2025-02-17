@@ -67,22 +67,21 @@ router.get("/fetchcampaignnames/analytics", async (req, res) => {
   }
 });
 
-// GET API to fetch analytics data for last two days from the given range and generate 24 hourly rows
+// GET API to fetch analytics data for the last two days from the given range and generate 24 hourly rows per day
 router.get("/getAnalyticsByDateRange", async (req, res) => {
   try {
-    const { startDate, endDate } = req.query;
+    let { startDate, endDate } = req.query;
     console.log("Received startDate:", startDate, "endDate:", endDate);
 
-    // Ensure the startDate and endDate are in correct format
+    // Validate input dates
     if (!startDate || !endDate) {
       return res.status(400).json({ message: "Invalid date range provided." });
     }
 
     // Convert to Date objects
-    const parsedStartDate = new Date(startDate);
-    const parsedEndDate = new Date(endDate);
+    let parsedStartDate = new Date(startDate);
+    let parsedEndDate = new Date(endDate);
 
-    // Validate parsed dates
     if (isNaN(parsedStartDate) || isNaN(parsedEndDate)) {
       return res.status(400).json({ message: "Invalid date format provided." });
     }
@@ -91,9 +90,9 @@ router.get("/getAnalyticsByDateRange", async (req, res) => {
     parsedEndDate.setHours(23, 59, 59, 999);
 
     // Calculate the last two days from the endDate
-    const lastTwoDates = [];
+    let lastTwoDates = [];
     for (let i = 1; i >= 0; i--) {
-      const date = new Date(parsedEndDate);
+      let date = new Date(parsedEndDate);
       date.setDate(date.getDate() - i);
       lastTwoDates.push(date.toISOString().split("T")[0]); // Format as 'YYYY-MM-DD'
     }
@@ -101,7 +100,7 @@ router.get("/getAnalyticsByDateRange", async (req, res) => {
     console.log("Fetching data for last two days:", lastTwoDates);
 
     // Fetch analytics data for these last two dates
-    const analyticsData = await Analytics.find({ Date: { $in: lastTwoDates } });
+    let analyticsData = await Analytics.find({ Date: { $in: lastTwoDates } });
 
     if (!analyticsData.length) {
       return res
@@ -110,41 +109,50 @@ router.get("/getAnalyticsByDateRange", async (req, res) => {
     }
 
     // Hourly percentage distribution for Visits & Cost
-    const percentagePattern = [
+    let percentagePattern = [
       3, 2, 4, 2, 1, 3, 4, 1, 2, 5, 3, 2, 6, 2, 8, 3, 11, 9, 4, 5, 6, 8, 4, 2,
     ];
 
+    // Ensure the percentage pattern sums to 100
+    let totalPercentage = percentagePattern.reduce((sum, p) => sum + p, 0);
+
     // Process data for each date and generate 24 rows per day
-    const transformedData = [];
+    let transformedData = [];
 
     analyticsData.forEach((entry) => {
-      const totalVisits = Number(entry.Vistis) || 0;
-      const totalCost = Number(entry.Cost) || 0;
+      let totalVisits = Number(entry.Vistis) || 0;
+      let totalCost = Number(entry.Cost) || 0;
 
       let distributedVisits = 0;
       let distributedCost = 0;
 
       for (let hour = 0; hour < 24; hour++) {
-        const visitShare = Math.round(
-          (percentagePattern[hour] / 100) * totalVisits
+        // Correctly distribute visits and cost using percentage pattern
+        let visitShare = Math.round(
+          (percentagePattern[hour] / totalPercentage) * totalVisits
         );
-        const costShare = Math.round(
-          (percentagePattern[hour] / 100) * totalCost
+        let costShare = Math.round(
+          (percentagePattern[hour] / totalPercentage) * totalCost
         );
+
+        // Ensure last hour adjusts for rounding errors
+        if (hour === 23) {
+          visitShare += totalVisits - distributedVisits;
+          costShare += totalCost - distributedCost;
+        }
 
         distributedVisits += visitShare;
         distributedCost += costShare;
+        const formattedCost = costShare.toFixed(2);
 
-        const cpc =
-          visitShare > 0
-            ? (costShare / visitShare).toFixed(2).replace(/\.00$/, "")
-            : "0.00";
+        // Calculate CPC: Cost per Click
+        let cpc = visitShare > 0 ? (costShare / visitShare).toFixed(2) : "0.00";
 
         transformedData.push({
           Date: entry.Date, // Same date repeated for each row
           HourUTC: hour,
           Visits: visitShare,
-          Cost: costShare,
+          Cost: formattedCost,
           CPC: cpc,
           campaignname: entry.campaignname,
           BidRequest: entry.BidRequest,
