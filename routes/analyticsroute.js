@@ -136,7 +136,9 @@ router.get("/getAnalyticsByDateRange", async (req, res) => {
         distributedCost += costShare;
 
         const cpc =
-          visitShare > 0 ? (costShare / visitShare).toFixed(2) : "0.00"; // Avoid division by zero
+          visitShare > 0
+            ? (costShare / visitShare).toFixed(2).replace(/\.00$/, "")
+            : "0.00";
 
         transformedData.push({
           Date: entry.Date, // Same date repeated for each row
