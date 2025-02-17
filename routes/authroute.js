@@ -24,7 +24,9 @@ router.post("/", async (req, res) => {
       res.status(400).json({ success: false, message: "Verification failed" });
     }
   } catch (error) {
-    res.status(500).json({ success: false, message: "Server error" });
+    res
+      .status(500)
+      .json({ success: false, message: "Server error", errmsg: error.message });
   }
 });
 
