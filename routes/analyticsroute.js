@@ -104,8 +104,6 @@ router.get("/getAnalyticsByDateRange", async (req, res) => {
       lastTwoDates.push(date.toISOString().split("T")[0]); // Format as 'YYYY-MM-DD'
     }
 
-    console.log("Fetching data for last two days:", lastTwoDates);
-
     // Build query with optional campaignname filtering
     let query = { Date: { $in: lastTwoDates } };
     if (campaignname) {
@@ -121,7 +119,7 @@ router.get("/getAnalyticsByDateRange", async (req, res) => {
         .json({ message: "No data found for the given range and campaign." });
     }
 
-    console.log(analyticsData);
+    console.log("Fetched Analytics Data:", analyticsData);
 
     // Hourly percentage distribution for Visits & Cost
     let percentagePattern = [
@@ -140,28 +138,36 @@ router.get("/getAnalyticsByDateRange", async (req, res) => {
 
       let distributedVisits = 0;
       let distributedCost = 0;
+      let hourlyCosts = [];
 
       for (let hour = 0; hour < 24; hour++) {
-        // Correctly distribute visits and cost using percentage pattern
+        // Distribute visits and cost using percentage pattern
         let visitShare = Math.round(
           (percentagePattern[hour] / totalPercentage) * totalVisits
         );
-        let costShare = Math.round(
-          (percentagePattern[hour] / totalPercentage) * totalCost
-        );
+        let costShare = (percentagePattern[hour] / totalPercentage) * totalCost;
 
-        // Ensure last hour adjusts for rounding errors
-        if (hour === 23) {
-          visitShare += totalVisits - distributedVisits;
-          costShare += totalCost - distributedCost;
-        }
+        // Store hourly cost values for adjustment later
+        hourlyCosts.push(costShare);
 
         distributedVisits += visitShare;
         distributedCost += costShare;
-        const formattedCost = parseFloat(costShare).toFixed(2); // Properly format cost
+      }
 
-        // Calculate CPC: Cost per Click
-        let cpc = visitShare > 0 ? (costShare / visitShare).toFixed(2) : "0.00";
+      // Adjust the last hour to fix rounding issues so the sum matches totalCost
+      let totalDistributedCost = hourlyCosts.reduce((acc, c) => acc + c, 0);
+      let roundingError = totalCost - totalDistributedCost;
+      hourlyCosts[23] += roundingError; // Adjust last hour
+
+      // Now store the transformed data
+      for (let hour = 0; hour < 24; hour++) {
+        let formattedCost = parseFloat(hourlyCosts[hour]).toFixed(2); // Properly format cost
+        let visitShare = Math.round(
+          (percentagePattern[hour] / totalPercentage) * totalVisits
+        ); // Correct scope
+
+        let cpc =
+          visitShare > 0 ? (hourlyCosts[hour] / visitShare).toFixed(2) : "0.00";
 
         transformedData.push({
           Date: entry.Date, // Same date repeated for each row
