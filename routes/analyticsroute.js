@@ -70,8 +70,15 @@ router.get("/fetchcampaignnames/analytics", async (req, res) => {
 // GET API to fetch analytics data for the last two days from the given range and generate 24 hourly rows per day
 router.get("/getAnalyticsByDateRange", async (req, res) => {
   try {
-    let { startDate, endDate } = req.query;
-    console.log("Received startDate:", startDate, "endDate:", endDate);
+    let { startDate, endDate, campaignname } = req.query;
+    console.log(
+      "Received startDate:",
+      startDate,
+      "endDate:",
+      endDate,
+      "campaignname:",
+      campaignname
+    );
 
     // Validate input dates
     if (!startDate || !endDate) {
@@ -99,14 +106,22 @@ router.get("/getAnalyticsByDateRange", async (req, res) => {
 
     console.log("Fetching data for last two days:", lastTwoDates);
 
-    // Fetch analytics data for these last two dates
-    let analyticsData = await Analytics.find({ Date: { $in: lastTwoDates } });
+    // Build query with optional campaignname filtering
+    let query = { Date: { $in: lastTwoDates } };
+    if (campaignname) {
+      query.campaignname = campaignname;
+    }
+
+    // Fetch analytics data for these last two dates and campaign (if provided)
+    let analyticsData = await Analytics.find(query);
 
     if (!analyticsData.length) {
       return res
         .status(404)
-        .json({ message: "No data found for the given range." });
+        .json({ message: "No data found for the given range and campaign." });
     }
+
+    console.log(analyticsData);
 
     // Hourly percentage distribution for Visits & Cost
     let percentagePattern = [
@@ -143,7 +158,7 @@ router.get("/getAnalyticsByDateRange", async (req, res) => {
 
         distributedVisits += visitShare;
         distributedCost += costShare;
-        const formattedCost = costShare.toFixed(2);
+        const formattedCost = parseFloat(costShare).toFixed(2); // Properly format cost
 
         // Calculate CPC: Cost per Click
         let cpc = visitShare > 0 ? (costShare / visitShare).toFixed(2) : "0.00";
@@ -171,6 +186,7 @@ router.get("/getAnalyticsByDateRange", async (req, res) => {
       .json({ message: "Internal server error", errormsg: err.message });
   }
 });
+
 // GET a single analytics by ID
 router.get("/:id", async (req, res) => {
   try {
