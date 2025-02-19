@@ -47,11 +47,9 @@ router.get("/", async (req, res) => {
     let matchStage = {};
 
     if (startDate && endDate) {
-      // Convert frontend MM/DD/YYYY to a proper Date object
       const parsedStartDate = new Date(startDate);
       const parsedEndDate = new Date(endDate);
 
-      // Adjust end date to include the whole day
       parsedEndDate.setHours(23, 59, 59, 999);
 
       matchStage.entryDate = {
@@ -65,10 +63,10 @@ router.get("/", async (req, res) => {
       {
         $group: {
           _id: "$campaignName",
-          campaignBid: { $avg: { $toDouble: "$campaignBid" } },
-          visits: { $avg: { $toDouble: "$visits" } },
-          cost: { $avg: { $toDouble: "$cost" } },
-          winRate: { $avg: { $toDouble: "$winRate" } },
+          campaignBid: { $avg: { $toDouble: "$campaignBid" } }, // Average bid amount
+          visits: { $sum: { $toDouble: "$visits" } }, // Sum of visits
+          cost: { $sum: { $toDouble: "$cost" } }, // Sum of costs
+          winRate: { $avg: { $toDouble: "$winRate" } }, // Average win rate
           geo: { $first: "$geo" },
           dailyCap: { $first: "$dailyCap" },
           bidRequests: { $first: "$bidRequests" },
@@ -89,7 +87,7 @@ router.get("/", async (req, res) => {
           campaignName: "$_id",
           campaignBid: { $round: ["$campaignBid", 2] },
           visits: { $round: ["$visits", 2] },
-          cost: { $round: ["$cost", 2] },
+          cost: { $round: ["$cost", 2] }, // Rounded sum of cost
           winRate: { $round: ["$winRate", 2] },
           geo: 1,
           dailyCap: 1,

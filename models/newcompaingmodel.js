@@ -8,7 +8,7 @@ const campaignSchema = new Schema(
       type: String,
     },
     id: {
-      type: Number,
+      type: Number, // Changed to Number
     },
     adFor: {
       type: String,
@@ -20,29 +20,29 @@ const campaignSchema = new Schema(
       type: String,
     },
     campaignBid: {
-      type: String,
+      type: Number, // Changed to Number
     },
     geo: {
       type: String,
     },
     bidRequests: {
-      type: String,
+      type: Number, // Changed to Number
     },
     videoImp: {
       type: String,
       required: false,
     },
     visits: {
-      type: String,
+      type: Number, // Changed to Number
     },
     winRate: {
-      type: String,
+      type: Number, // Changed to Number
     },
     cost: {
       type: String,
     },
     dailyCap: {
-      type: String,
+      type: Number, // Changed to Number
     },
     title: {
       type: String,
@@ -63,7 +63,6 @@ const campaignSchema = new Schema(
       type: Date,
       required: true,
     },
-    // I update here that is totally Right
   },
   { timestamps: true }
 );
