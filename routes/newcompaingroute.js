@@ -37,6 +37,8 @@ const router = express.Router();
 // });
 
 // GET all campaigns or filter by date range and group by campaignName
+
+// GET all campaigns or filter by date range and group by campaignName
 router.get("/", async (req, res) => {
   const { startDate, endDate } = req.query;
   console.log("Received startDate:", startDate, "endDate:", endDate);
@@ -44,11 +46,19 @@ router.get("/", async (req, res) => {
   try {
     let matchStage = {};
 
+    // Convert startDate and endDate to YYYY-MM-DD format if provided
+    const parsedStartDate = startDate
+      ? new Date(startDate).toISOString().split("T")[0]
+      : null;
+    const parsedEndDate = endDate
+      ? new Date(endDate).toISOString().split("T")[0]
+      : null;
+
     // If date range is provided, filter campaigns based on entryDate
-    if (startDate && endDate) {
+    if (parsedStartDate && parsedEndDate) {
       matchStage.entryDate = {
-        $gte: startDate,
-        $lte: endDate,
+        $gte: parsedStartDate,
+        $lte: parsedEndDate,
       };
     }
 
@@ -105,6 +115,7 @@ router.get("/", async (req, res) => {
     res.status(500).json({ message: err.message });
   }
 });
+
 // GET a single campaign
 router.get("/:id", async (req, res) => {
   try {
