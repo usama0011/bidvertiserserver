@@ -46,16 +46,14 @@ router.get("/", async (req, res) => {
   try {
     let matchStage = {};
 
-    // Convert startDate and endDate to YYYY-MM-DD format if provided
-    const parsedStartDate = startDate
-      ? new Date(startDate).toISOString().split("T")[0]
-      : null;
-    const parsedEndDate = endDate
-      ? new Date(endDate).toISOString().split("T")[0]
-      : null;
+    if (startDate && endDate) {
+      // Convert frontend MM/DD/YYYY to a proper Date object
+      const parsedStartDate = new Date(startDate);
+      const parsedEndDate = new Date(endDate);
 
-    // If date range is provided, filter campaigns based on entryDate
-    if (parsedStartDate && parsedEndDate) {
+      // Adjust end date to include the whole day
+      parsedEndDate.setHours(23, 59, 59, 999);
+
       matchStage.entryDate = {
         $gte: parsedStartDate,
         $lte: parsedEndDate,

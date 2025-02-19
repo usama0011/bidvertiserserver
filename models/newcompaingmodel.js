@@ -60,7 +60,8 @@ const campaignSchema = new Schema(
       type: String,
     },
     entryDate: {
-      type: String,
+      type: Date,
+      required: true,
     },
     // I update here that is totally Right
   },
