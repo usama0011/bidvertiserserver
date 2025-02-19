@@ -12,24 +12,21 @@ router.get("/", async (req, res) => {
     let campaigns;
 
     if (startDate && endDate) {
-      // Convert startDate and endDate from 'MM/DD/YYYY' to 'YYYY-MM-DD'
-      const [startMonth, startDay, startYear] = startDate.split("/");
-      const [endMonth, endDay, endYear] = endDate.split("/");
-
-      // Create Date objects in the format 'YYYY-MM-DD'
-      const parsedStartDate = new Date(
-        `${startYear}-${startMonth}-${startDay}`
-      );
-      const parsedEndDate = new Date(`${endYear}-${endMonth}-${endDay}`);
+      // Create Date objects directly from the provided 'YYYY-MM-DD' format
+      const parsedStartDate = new Date(startDate);
+      const parsedEndDate = new Date(endDate);
 
       // Adjust endDate to include the entire day
       parsedEndDate.setHours(23, 59, 59, 999);
+
+      // MongoDB query format
       const query = {
         Date: {
-          $gte: parsedStartDate.toISOString().split("T")[0], // Format as 'YYYY-MM-DD'
-          $lte: parsedEndDate.toISOString().split("T")[0], // Format as 'YYYY-MM-DD'
+          $gte: parsedStartDate,
+          $lte: parsedEndDate,
         },
       };
+
       if (selectedCampaign) {
         query.campaignname = selectedCampaign;
       }
