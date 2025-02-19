@@ -3,39 +3,108 @@ import Campaign from "../models/newcompaingmodel.js";
 
 const router = express.Router();
 
-// GET all campaigns or filter by date range
+// // GET all campaigns or filter by date range
+// router.get("/", async (req, res) => {
+//   const { startDate, endDate } = req.query;
+//   console.log(req.query);
+//   console.log("Received startDate:", startDate, "endDate:", endDate);
+
+//   try {
+//     let campaigns;
+
+//     // Check if both startDate and endDate are provided
+//     if (startDate && endDate) {
+//       // Convert dates to 'YYYY-MM-DD' format
+//       const parsedStartDate = new Date(startDate).toISOString().split("T")[0];
+//       const parsedEndDate = new Date(endDate).toISOString().split("T")[0];
+
+//       // Filter campaigns based on the createdAt field
+//       campaigns = await Campaign.find({
+//         createdAt: {
+//           $gte: new Date(parsedStartDate),
+//           $lte: new Date(parsedEndDate),
+//         },
+//       }).exec();
+//     } else {
+//       // If no date range is provided, return all campaigns
+//       campaigns = await Campaign.find().exec();
+//     }
+
+//     res.status(200).json(campaigns);
+//   } catch (err) {
+//     res.status(500).json({ message: err.message });
+//   }
+// });
+
+// GET all campaigns or filter by date range and group by campaignName
 router.get("/", async (req, res) => {
   const { startDate, endDate } = req.query;
-  console.log(req.query);
   console.log("Received startDate:", startDate, "endDate:", endDate);
 
   try {
-    let campaigns;
+    let matchStage = {};
 
-    // Check if both startDate and endDate are provided
+    // If date range is provided, filter campaigns based on entryDate
     if (startDate && endDate) {
-      // Convert dates to 'YYYY-MM-DD' format
-      const parsedStartDate = new Date(startDate).toISOString().split("T")[0];
-      const parsedEndDate = new Date(endDate).toISOString().split("T")[0];
-
-      // Filter campaigns based on the createdAt field
-      campaigns = await Campaign.find({
-        createdAt: {
-          $gte: new Date(parsedStartDate),
-          $lte: new Date(parsedEndDate),
-        },
-      }).exec();
-    } else {
-      // If no date range is provided, return all campaigns
-      campaigns = await Campaign.find().exec();
+      matchStage.entryDate = {
+        $gte: startDate,
+        $lte: endDate,
+      };
     }
+
+    const campaigns = await Campaign.aggregate([
+      { $match: matchStage },
+      {
+        $group: {
+          _id: "$campaignName",
+          campaignBid: { $avg: { $toDouble: "$campaignBid" } },
+          visits: { $avg: { $toDouble: "$visits" } },
+          cost: { $avg: { $toDouble: "$cost" } },
+          winRate: { $avg: { $toDouble: "$winRate" } },
+          geo: { $first: "$geo" },
+          dailyCap: { $first: "$dailyCap" },
+          bidRequests: { $first: "$bidRequests" },
+          id: { $first: "$id" },
+          adFormat: { $first: "$adFormat" },
+          adFor: { $first: "$adFor" },
+          title: { $first: "$title" },
+          descriptionone: { $first: "$descriptionone" },
+          descriptiontwo: { $first: "$descriptiontwo" },
+          destinationURL: { $first: "$destinationURL" },
+          displayURL: { $first: "$displayURL" },
+          videoImp: { $first: "0" }, // Set videoImp to 0 for all grouped campaigns
+        },
+      },
+      {
+        $project: {
+          _id: 0,
+          campaignName: "$_id",
+          campaignBid: { $round: ["$campaignBid", 2] },
+          visits: { $round: ["$visits", 2] },
+          cost: { $round: ["$cost", 2] },
+          winRate: { $round: ["$winRate", 2] },
+          geo: 1,
+          dailyCap: 1,
+          bidRequests: 1,
+          id: 1,
+          adFormat: 1,
+          adFor: 1,
+          title: 1,
+          descriptionone: 1,
+          descriptiontwo: 1,
+          destinationURL: 1,
+          displayURL: 1,
+          videoImp: 1,
+        },
+      },
+    ]);
 
     res.status(200).json(campaigns);
   } catch (err) {
+    console.error("Error fetching campaigns:", err);
     res.status(500).json({ message: err.message });
   }
 });
-
 // GET a single campaign
 router.get("/:id", async (req, res) => {
   try {
