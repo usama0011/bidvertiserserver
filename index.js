@@ -15,6 +15,7 @@ import dailyactivityupload from "./csvroutes/dailyactivitycsv.js";
 import monthlyinvoiceupload from "./csvroutes/monthlyinvoicecsv.js";
 import transactionRoutes from "./routes/transactionroute.js";
 import transactionUploadRoutes from "./csvroutes/transactioncsv.js";
+import newcampaingsupload from "./csvroutes/newcampaigncsv.js";
 
 const app = express();
 dotenv.config();
@@ -51,6 +52,7 @@ app.use("/api/dailyactivityupload", dailyactivityupload);
 app.use("/api/monthlyinvoiceupload", monthlyinvoiceupload);
 app.use("/api/transactionRoutes", transactionRoutes);
 app.use("/api/transactionupload", transactionUploadRoutes);
+app.use("/api/newcampaingsupload", newcampaingsupload);
 // Error handling middleware
 // Error handling middleware
 app.use((err, req, res, next) => {
