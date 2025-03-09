@@ -70,13 +70,6 @@ router.get("/aggrigation-summary", async (req, res) => {
     let { startDate, endDate } = req.query;
     console.log("Received Dates:", startDate, endDate);
 
-    // **Keep Date Format as MM/DD/YYYY to Match MongoDB**
-    const convertDateFormat = (dateStr) => dateStr;
-
-    startDate = convertDateFormat(startDate);
-    endDate = convertDateFormat(endDate);
-
-    console.log("Converted Dates (Kept Same):", startDate, endDate);
     if (!startDate || !endDate) {
       return res
         .status(400)
@@ -91,12 +84,37 @@ router.get("/aggrigation-summary", async (req, res) => {
         },
       },
       {
+        $project: {
+          campaignname: 1,
+          BidRequest: {
+            $toDouble: {
+              $replaceAll: { input: "$BidRequest", find: ",", replacement: "" },
+            },
+          },
+          Vistis: {
+            $toDouble: {
+              $replaceAll: { input: "$Vistis", find: ",", replacement: "" },
+            },
+          },
+          Cost: {
+            $toDouble: {
+              $replaceAll: { input: "$Cost", find: ",", replacement: "" },
+            },
+          },
+          CPC: {
+            $toDouble: {
+              $replaceAll: { input: "$CPC", find: ",", replacement: "" },
+            },
+          },
+        },
+      },
+      {
         $group: {
           _id: "$campaignname",
-          totalBidRequest: { $sum: { $toDouble: "$BidRequest" } }, // **Ensure numeric conversion**
-          totalVisits: { $sum: { $toDouble: "$Vistis" } }, // **Fix typo**
-          totalCost: { $sum: { $toDouble: "$Cost" } },
-          totalCPC: { $sum: { $toDouble: "$CPC" } },
+          totalBidRequest: { $sum: "$BidRequest" },
+          totalVisits: { $sum: "$Vistis" },
+          totalCost: { $sum: "$Cost" },
+          totalCPC: { $sum: "$CPC" },
           entryCount: { $sum: 1 }, // Count number of entries per campaign
         },
       },
