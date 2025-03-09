@@ -120,7 +120,9 @@ router.get("/aggrigation-summary", async (req, res) => {
     });
   } catch (error) {
     console.error("Error fetching data:", error.message);
-    res.status(500).json({ message: "Internal Server Error" });
+    res
+      .status(500)
+      .json({ message: "Internal Server Error", erromsg: error.message });
   }
 });
 
