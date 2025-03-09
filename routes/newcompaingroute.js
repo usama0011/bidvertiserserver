@@ -149,6 +149,7 @@ router.post("/", async (req, res) => {
     descriptionone,
     descriptiontwo,
     displayURL,
+    entryDate,
   } = req.body;
 
   const campaign = new Campaign({
@@ -170,6 +171,7 @@ router.post("/", async (req, res) => {
     descriptionone,
     descriptiontwo,
     displayURL,
+    entryDate,
   });
 
   try {
